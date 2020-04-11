@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/cache
+       http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <!--以下两个注册bean的动作同CacheConfig类效果一样-->
+
+    <!--2. 创建底层CacheManager；Spring提供EhCacheManagerFactoryBean来简化外部依赖ehcache
+    的CacheManager的创建；指定configuration路径比编码方式简单多了-->
+    <bean id="ehcacheManager"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <!--1. 创建底层cache-->
+        <property name="configuration" value="classpath:ehcache.xml"/>
+    </bean>
+
+    <!--3. 创建spring的cache-->
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" value="ehcacheManager"/>
+        <!--是否支持事务，是则事务回滚，缓存也回滚，默认false-->
+        <property name="transactionAware" value="true"/>
+    </bean>
+
+    <!--开启注解，加上这句话后，本xml和AnnotationCacheConfig效果一样-->
+    <cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/>
+
+</beans>
